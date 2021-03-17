@@ -1,0 +1,45 @@
+.cp-popup {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #718ac6;
+    padding: 20px;
+    max-width: 25vw;
+    width: 400px;
+    animation: cpFadeIn ease 1s;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #999;
+
+    .cp-button {
+        padding: 10px;
+        margin-right: 10px;
+        border-radius: 8px;
+        border: 0;
+    }
+
+    .cp-button:active, .cp-button:focus {
+        border: 0;
+    }
+
+    .cp-button:hover {
+        background-color: #bcf880;
+    }
+
+    .cp-accept {
+        background-color: #a0e25e;
+    }
+
+    .cp-customize {
+        background-color: #cdcdcd;
+    }
+}
+
+@keyframes cpFadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
