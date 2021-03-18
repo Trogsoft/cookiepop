@@ -5,7 +5,9 @@ const cookiepop = new function () {
     const defaults = {
         cookieName: '_cp_cookie_preference',
         cookiePath: '/',
-        expiry: 31536000
+        expiry: 31536000,
+        autoDetectCookieTypes: true,
+        cookiesUsed: ['required', 'functional', 'stats', 'marketing']
     };
 
     const eventHandlers = {
@@ -31,7 +33,18 @@ const cookiepop = new function () {
     }
 
     cp.init = function () {
-        document.querySelectorAll('x-script').forEach(x => pendingScripts.push(x));
+        if (settings.autoDetectCookieTypes)
+            settings.cookiesUsed = ['required'];
+
+        document.querySelectorAll('x-script').forEach(x => {
+            if (settings.autoDetectCookieTypes) {
+                var cookieType = x.getAttribute('cookie-type');
+                if (settings.cookiesUsed.indexOf(cookieType) === -1)
+                    settings.cookiesUsed.push(cookieType);
+            }
+            pendingScripts.push(x)
+        });
+        document.querySelector('.cookie-preferences').addEventListener('click', cp.configurePreferences);
         const matchingCookies = document.cookie.split(';').filter(x => x.trim().startsWith(settings.cookieName + '='));
         if (matchingCookies.length > 0) {
             const [_, val] = matchingCookies[0].split('=');
@@ -49,10 +62,12 @@ const cookiepop = new function () {
         if (popup)
             popup.remove();
 
+        var splitPrefs = pref.split(',');
+
         pendingScripts.forEach(x => {
 
             var cp = x.getAttribute('cookie-type');
-            if (pref == cp || pref == 'all') {
+            if (splitPrefs.indexOf(cp) > -1 || pref === 'all') {
                 let scriptNode = document.createElement('script');
                 Array.from(x.attributes).forEach(a => scriptNode.setAttribute(a.name, a.value));
                 x.insertAdjacentElement('beforebegin', scriptNode);
@@ -95,7 +110,93 @@ const cookiepop = new function () {
         popupButtons.appendChild(popupCustomize);
 
         popupOk.addEventListener('click', e => { setCookie('all'); applyPreference('all') });
+        popupCustomize.addEventListener('click', cp.configurePreferences);
         document.querySelector('body').appendChild(popupElement);
+
+    }
+
+    cp.configurePreferences = function () {
+
+        const prefOverlay = document.createElement('div');
+        prefOverlay.className = 'cp-pref-overlay';
+        document.querySelector('body').appendChild(prefOverlay);
+
+        const prefPop = document.createElement('div');
+        prefPop.className = 'cp-pref';
+
+        const prefContent = document.createElement('div');
+        prefContent.className = 'cp-pref-content';
+        prefPop.appendChild(prefContent);
+
+        const prefContentHead = document.createElement('h1');
+        prefContentHead.innerText = resources.custTitle;
+        prefContent.appendChild(prefContentHead);
+
+        const prefContentIntro = document.createElement('p');
+        prefContentIntro.innerText = resources.custHeader;
+        prefContent.appendChild(prefContentIntro);
+
+        settings.cookiesUsed.forEach(x => {
+
+            const cookieType = document.createElement('div');
+            cookieType.className = 'cp-pref-cookie-type cp-cookie-' + x;
+
+            const cookieTypeCheckbox = document.createElement('input');
+            cookieTypeCheckbox.type = 'checkbox';
+            cookieTypeCheckbox.id = 'cookie-type-' + x;
+
+            if (x === 'required') {
+                cookieTypeCheckbox.disabled = true;
+                cookieTypeCheckbox.checked = true;
+            }
+
+            cookieType.appendChild(cookieTypeCheckbox);
+
+            const cookieTypeLabel = document.createElement('label');
+            cookieTypeLabel.setAttribute('for', cookieTypeCheckbox.id);
+            cookieTypeLabel.innerText = resources.cookieType[x].title;
+            cookieType.appendChild(cookieTypeLabel);
+
+            const cookieTypeDesc = document.createElement('p');
+            cookieTypeDesc.innerText = resources.cookieType[x].description;
+            cookieType.appendChild(cookieTypeDesc);
+
+            prefContent.appendChild(cookieType);
+
+        });
+
+        const prefButton = document.createElement('button');
+        prefButton.className = 'cp-button cp-pref-button';
+        prefButton.innerText = resources.custButtonAccept;
+        prefPop.appendChild(prefButton);
+
+        prefButton.addEventListener('click', determineSelectedPreferences);
+
+        document.querySelector('body').appendChild(prefPop);
+
+    }
+
+    function determineSelectedPreferences() {
+
+        const accepted = [];
+        settings.cookiesUsed.forEach(x => {
+            var checkboxId = '#cookie-type-' + x;
+            var checkbox = document.querySelector(checkboxId);
+            if (checkbox.checked) {
+                accepted.push(x);
+            }
+        });
+
+        const acceptedString = accepted.join(',');
+
+        let overlay = document.querySelector('.cp-pref-overlay');
+        overlay.remove();
+
+        let prefPopup = document.querySelector('.cp-pref');
+        prefPopup.remove();
+
+        setCookie(acceptedString);
+        applyPreference(acceptedString);
 
     }
 
