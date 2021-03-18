@@ -8,4 +8,5 @@ foreach ($lang in $langFiles) {
     $langCode = $code + "`r`n`r`n" + $content;
     Remove-Item "dist/trogsoft.cookiepop.$language.js" -Force
     Add-Content -Path "dist/trogsoft.cookiepop.$language.js" -Value $langCode
+    minify "dist/trogsoft.cookiepop.$language.js" >"dist/trogsoft.cookiepop.$language.min.js"
 }

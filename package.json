@@ -1,0 +1,17 @@
+{
+  "name": "cookiepop",
+  "version": "1.0.0",
+  "description": "GDPR cookie consent",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Trogsoft/cookiepop.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Trogsoft/cookiepop/issues"
+  },
+  "homepage": "https://github.com/Trogsoft/cookiepop#readme"
+}
