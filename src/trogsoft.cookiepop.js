@@ -3,7 +3,9 @@ const cookiepop = new function () {
     const cp = this;
     const pendingScripts = [];
     const defaults = {
-        cookieName: '_cp_cookie_preference'
+        cookieName: '_cp_cookie_preference',
+        cookiePath: '/',
+        expiry: 31536000
     };
 
     const eventHandlers = {
@@ -30,9 +32,11 @@ const cookiepop = new function () {
 
     cp.init = function () {
         document.querySelectorAll('x-script').forEach(x => pendingScripts.push(x));
-        const matchingCookies = document.cookie.split(';').filter(x => x.startsWith(settings.cookieName + '='));
-        if (matchingCookies.length > 0)
-            applyPreference();
+        const matchingCookies = document.cookie.split(';').filter(x => x.trim().startsWith(settings.cookieName + '='));
+        if (matchingCookies.length > 0) {
+            const [_, val] = matchingCookies[0].split('=');
+            applyPreference(val);
+        }
         else
             cp.showCookiePopup();
     }
@@ -40,13 +44,21 @@ const cookiepop = new function () {
     function applyPreference(pref) {
 
         eventHandlers.consent.forEach(x => x(pref));
-        document.querySelector('.cp-popup').remove();
+
+        var popup = document.querySelector('.cp-popup');
+        if (popup)
+            popup.remove();
 
         pendingScripts.forEach(x => {
-            let scriptNode = document.createElement('script');
-            Array.from(x.attributes).forEach(a => scriptNode.setAttribute(a.name, a.value));
-            x.insertAdjacentElement('beforebegin', scriptNode);
-            x.remove();
+
+            var cp = x.getAttribute('cookie-type');
+            if (pref == cp || pref == 'all') {
+                let scriptNode = document.createElement('script');
+                Array.from(x.attributes).forEach(a => scriptNode.setAttribute(a.name, a.value));
+                x.insertAdjacentElement('beforebegin', scriptNode);
+                x.remove();
+            }
+
         });
 
     }
@@ -82,8 +94,14 @@ const cookiepop = new function () {
         popupCustomize.innerText = resources.popupCustomize;
         popupButtons.appendChild(popupCustomize);
 
-        popupOk.addEventListener('click', e => { applyPreference('all') });
+        popupOk.addEventListener('click', e => { setCookie('all'); applyPreference('all') });
         document.querySelector('body').appendChild(popupElement);
+
+    }
+
+    function setCookie(pref) {
+
+        document.cookie = settings.cookieName + '=' + pref + '; max-age=' + (settings.expiry) + '; path=' + settings.cookiePath;
 
     }
 
