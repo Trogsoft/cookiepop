@@ -50,13 +50,23 @@ Valid cookie types are:
 * `stats` (eg, Google Analytics)
 * `marketing` (eg, Google Adsense)
 
+## Events
+
+When the user provides consent, you can react to it.
+
+```js
+cookiepop.on('consent', function(cookieTypes){
+    console.log('You consented to the following cookies: '+cookieTypes);
+});
+```
+
 ## Styling
 
 If you want to alter the colors or styles, you will have to do this with your own CSS for the time being.  Look in trogsoft.cookiepop.scss to see what to override.
 
 ## Translations
 
-If you are able to provide translations, check out the `src/lang/lang.en.js` file.  This contains all the strings that neen translating.  Feel free to submit a pull request to have it included in the project.  Our thanks in advance!
+If you are able to provide translations, check out the `src/lang/lang.en.js` file.  This contains all the strings that need translating.  Feel free to submit a pull request to have it included in the project.  Our thanks in advance!
 
 ## Roadmap
 
