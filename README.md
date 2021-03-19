@@ -68,6 +68,22 @@ If you want to alter the colors or styles, you will have to do this with your ow
 
 If you are able to provide translations, check out the `src/lang/lang.en.js` file.  This contains all the strings that need translating.  Feel free to submit a pull request to have it included in the project.  Our thanks in advance!
 
+## Manually triggering the Customize Popup
+
+Use something like this on your page:
+
+```html
+<button class="cookie-preferences">Change My Preferences</button>
+```
+
+Or do it manually with Javascript.
+
+```js
+...
+cookiepop.configurePreferences();
+...
+```
+
 ## Roadmap
 
 * Make language detection automatic

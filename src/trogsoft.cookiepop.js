@@ -57,7 +57,10 @@ const cookiepop = new function () {
             }
             pendingScripts.push(x)
         });
-        document.querySelector('.cookie-preferences').addEventListener('click', cp.configurePreferences);
+
+        var cookiePrefTriggers = document.querySelectorAll('.cookie-preferences');
+        if (cookiePrefTriggers.length > 0)
+            cookiePrefTriggers.forEach(x => x.addEventListener('click', cp.configurePreferences));
 
         var cookieValue = getCookieValue();
         if (typeof cookieValue == "undefined") {
