@@ -7,7 +7,7 @@ This is our simple cookie consent system.  Add this to your HTML.
 <link rel="stylesheet" href="/css/trogsoft.cookiepop.min.css" />
 ```
 
-That's it!
+That's it!  
 
 The `.global.min.js` file includes all languages.  Alternatively if you only need one language, choose the specific file, for example
 
@@ -74,3 +74,5 @@ If you are able to provide translations, check out the `src/lang/lang.en.js` fil
 * Allow user to select a language in the UI
 * User refines consent to make it more restrictive, something should happen
 * Style using configuration
+* Make it mobile friendly
+* Different positions for the popup
