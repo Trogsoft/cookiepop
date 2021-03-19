@@ -76,3 +76,4 @@ If you are able to provide translations, check out the `src/lang/lang.en.js` fil
 * Style using configuration
 * Make it mobile friendly
 * Different positions for the popup
+* Test on different browsers
