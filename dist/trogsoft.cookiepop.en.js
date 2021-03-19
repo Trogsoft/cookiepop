@@ -7,21 +7,25 @@ const cookiepop = new function () {
         cookiePath: '/',
         expiry: 31536000,
         autoDetectCookieTypes: true,
-        cookiesUsed: ['required', 'functional', 'stats', 'marketing']
+        cookiesUsed: ['required', 'functional', 'stats', 'marketing'],
+        lang: 'en'
     };
 
     const eventHandlers = {
         'consent': []
     }
 
-    const defaultResources = {
+    const languageStrings = {
     };
 
     let settings = Object.assign({}, defaults);
-    let resources = Object.assign({}, defaultResources);
 
-    cp.lang = function (lang) {
-        resources = Object.assign({}, defaultResources, lang);
+    function getString(loc) {
+        return loc(languageStrings[settings.lang]);
+    }
+
+    cp.lang = function (lang, resources) {
+        languageStrings[lang] = resources;
     }
 
     cp.on = function (eventName, handler) {
@@ -30,6 +34,15 @@ const cookiepop = new function () {
 
     cp.configure = function (config) {
         settings = Object.assign({}, defaults, config);
+    }
+
+    function getCookieValue() {
+        const matchingCookies = document.cookie.split(';').filter(x => x.trim().startsWith(settings.cookieName + '='));
+        if (matchingCookies.length > 0) {
+            const [_, val] = matchingCookies[0].split('=');
+            return val;
+        }
+        return undefined;
     }
 
     cp.init = function () {
@@ -45,18 +58,21 @@ const cookiepop = new function () {
             pendingScripts.push(x)
         });
         document.querySelector('.cookie-preferences').addEventListener('click', cp.configurePreferences);
-        const matchingCookies = document.cookie.split(';').filter(x => x.trim().startsWith(settings.cookieName + '='));
-        if (matchingCookies.length > 0) {
-            const [_, val] = matchingCookies[0].split('=');
-            applyPreference(val);
-        }
-        else
+
+        var cookieValue = getCookieValue();
+        if (typeof cookieValue == "undefined") {
             cp.showCookiePopup();
+        } else {
+            applyPreference(cookieValue);
+        }
     }
 
     function applyPreference(pref) {
 
         eventHandlers.consent.forEach(x => x(pref));
+
+        var oldPreference = getCookieValue() || '';
+        var oldValues = oldPreference.split(',');
 
         var popup = document.querySelector('.cp-popup');
         if (popup)
@@ -76,6 +92,8 @@ const cookiepop = new function () {
 
         });
 
+        setCookie(pref);
+
     }
 
     cp.showCookiePopup = function () {
@@ -83,16 +101,9 @@ const cookiepop = new function () {
         const popupElement = document.createElement('div');
         popupElement.className = 'cp-popup';
 
-        if (resources.popupTitle) {
-            const popupTitle = document.createElement('p');
-            popupTitle.className = 'cp-title';
-            popupTitle.innerText = resources.popupTitle;
-            popupElement.appendChild(popupTitle);
-        }
-
         const popupText = document.createElement('p');
         popupText.className = 'cp-text';
-        popupText.innerText = resources.popupText;
+        popupText.innerText = getString(x => x.popupText);
         popupElement.appendChild(popupText);
 
         const popupButtons = document.createElement('div');
@@ -101,12 +112,12 @@ const cookiepop = new function () {
 
         const popupOk = document.createElement('button');
         popupOk.className = 'cp-button cp-accept';
-        popupOk.innerText = resources.popupOk;
+        popupOk.innerText = getString(x => x.popupOk);
         popupButtons.appendChild(popupOk);
 
         const popupCustomize = document.createElement('button');
         popupCustomize.className = 'cp-button cp-customize';
-        popupCustomize.innerText = resources.popupCustomize;
+        popupCustomize.innerText = getString(x => x.popupCustomize);
         popupButtons.appendChild(popupCustomize);
 
         popupOk.addEventListener('click', e => { setCookie('all'); applyPreference('all') });
@@ -116,6 +127,9 @@ const cookiepop = new function () {
     }
 
     cp.configurePreferences = function () {
+
+        var cookieVal = getCookieValue() || '';
+        var allowed = cookieVal.split(',');
 
         const prefOverlay = document.createElement('div');
         prefOverlay.className = 'cp-pref-overlay';
@@ -129,11 +143,11 @@ const cookiepop = new function () {
         prefPop.appendChild(prefContent);
 
         const prefContentHead = document.createElement('h1');
-        prefContentHead.innerText = resources.custTitle;
+        prefContentHead.innerText = getString(x => x.custTitle);
         prefContent.appendChild(prefContentHead);
 
         const prefContentIntro = document.createElement('p');
-        prefContentIntro.innerText = resources.custHeader;
+        prefContentIntro.innerText = getString(x => x.custHeader);
         prefContent.appendChild(prefContentIntro);
 
         settings.cookiesUsed.forEach(x => {
@@ -150,15 +164,18 @@ const cookiepop = new function () {
                 cookieTypeCheckbox.checked = true;
             }
 
+            if (allowed.indexOf(x) > -1 || cookieVal == 'all')
+                cookieTypeCheckbox.checked = true;
+
             cookieType.appendChild(cookieTypeCheckbox);
 
             const cookieTypeLabel = document.createElement('label');
             cookieTypeLabel.setAttribute('for', cookieTypeCheckbox.id);
-            cookieTypeLabel.innerText = resources.cookieType[x].title;
+            cookieTypeLabel.innerText = getString(l => l.cookieType[x].title);
             cookieType.appendChild(cookieTypeLabel);
 
             const cookieTypeDesc = document.createElement('p');
-            cookieTypeDesc.innerText = resources.cookieType[x].description;
+            cookieTypeDesc.innerText = getString(l => l.cookieType[x].description);
             cookieType.appendChild(cookieTypeDesc);
 
             prefContent.appendChild(cookieType);
@@ -167,7 +184,7 @@ const cookiepop = new function () {
 
         const prefButton = document.createElement('button');
         prefButton.className = 'cp-button cp-pref-button';
-        prefButton.innerText = resources.custButtonAccept;
+        prefButton.innerText = getString(l => l.custButtonAccept);
         prefPop.appendChild(prefButton);
 
         prefButton.addEventListener('click', determineSelectedPreferences);
@@ -195,7 +212,6 @@ const cookiepop = new function () {
         let prefPopup = document.querySelector('.cp-pref');
         prefPopup.remove();
 
-        setCookie(acceptedString);
         applyPreference(acceptedString);
 
     }
@@ -218,7 +234,7 @@ const cookiepop = new function () {
 
 
 
-cookiepop.lang({
+cookiepop.lang('en', {
     popupTitle: '',
     popupText: 'This website uses cookies to ensure you get the best experience.',
     popupOk: 'Accept All',

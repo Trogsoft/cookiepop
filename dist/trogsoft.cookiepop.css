@@ -1,0 +1,67 @@
+.cp-popup {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #718ac6;
+  padding: 20px;
+  max-width: 25vw;
+  width: 400px;
+  animation: cpFadeIn ease 1s;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #999; }
+
+.cp-button {
+  padding: 10px;
+  margin-right: 10px;
+  border-radius: 8px;
+  border: 0; }
+
+.cp-button:active, .cp-button:focus {
+  border: 0; }
+
+.cp-button:hover {
+  background-color: #bcf880; }
+
+.cp-accept {
+  background-color: #a0e25e; }
+
+.cp-customize {
+  background-color: #cdcdcd; }
+
+.cp-pref-overlay {
+  position: fixed;
+  z-index: 10000;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #000;
+  opacity: 0.35; }
+
+.cp-pref {
+  border-radius: 8px;
+  width: 40vw;
+  height: 40vh;
+  background-color: #718ac6;
+  position: fixed;
+  left: 50%;
+  z-index: 10001;
+  top: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 10px #000;
+  padding: 16px;
+  color: black; }
+  .cp-pref h1 {
+    font-size: 22px;
+    color: black; }
+  .cp-pref .cp-pref-cookie-type input {
+    margin-right: 10px; }
+  .cp-pref .cp-pref-cookie-type label {
+    font-weight: bold; }
+
+@keyframes cpFadeIn {
+  0% {
+    opacity: 0; }
+  100% {
+    opacity: 1; } }
